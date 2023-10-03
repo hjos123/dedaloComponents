@@ -2,29 +2,32 @@
 .panelPrincipal {
   display: flex;
   flex-direction: row;
-  border: 2px solid #f2f1f1;
+  border: 2px solid rgba(0, 0, 0, 0.1);
 }
 /* Panel de tareas */
 .panelTareas {
   display: flex;
   flex-direction: column;
   min-width: 200px;
-  border-right: 2px solid #f2f1f1;
 }
 .panelTareas > header {
   display: flex;
   height: 50px;
-  border-bottom: 2px solid #f2f1f1;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
 .panelSecciones > section {
   display: flex;
   align-items: center;
   height: 50px;
   padding: 0px 10px;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #7e7e7e;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
 }
 .panelSecciones > section:nth-child(even) {
-  background-color: #f2f2f2;
+  background: rgba(0, 0, 0, 0.1);
 }
 .panelSecciones > section > span {
   display: inline-block;
@@ -39,16 +42,17 @@
 }
 .panelColumnas > header {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   font-size: 13px;
   color: #7e7e7e;
   text-align: center;
   height: 50px;
-  border-bottom: 2px solid #f2f1f1;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+.panelColumnas > header > div {
+  font-weight: 700;
 }
 .panelColumnas > div > section {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   min-width: 200px;
   font-size: 13px;
   color: #7e7e7e;
@@ -62,9 +66,12 @@
   align-items: center;
   text-align: center;
   min-width: 200px;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  font-size: 13px;
 }
 .panelColumnas > div > section:nth-child(even) {
-  background-color: #f2f2f2;
+  background: rgba(0, 0, 0, 0.1);
 }
 /* Calendario */
 .panelCalendario {
@@ -80,7 +87,7 @@
 .panelCalendario > table > thead > tr > th {
   min-width: 200px;
   height: 48px;
-  border-bottom: 2px solid #f2f1f1;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
   font-size: 13px;
   color: #7e7e7e;
 }
@@ -93,10 +100,10 @@
 .panelCalendario > table > tbody > tr > td {
   height: 50px;
   padding: 0;
-  border-right: 2px solid #f2f1f1;
+  border-right: 2px solid rgba(0, 0, 0, 0.2);
 }
 .panelCalendario > table > tbody > tr:nth-child(even) {
-  background-color: #f2f2f2;
+  background: rgba(0, 0, 0, 0.1);
 }
 .panelCalendario > table > tbody > tr > td:last-child {
   border-right: 0px;
@@ -105,13 +112,12 @@
   display: flex;
   width: 100%;
   height: 35px;
-  background: #d9d9d9;
   padding: 1px;
   position: relative;
 }
 .panelCalendario > table > tbody > tr > td > span > article {
   font-size: 9px;
-  background-color: #f2f2f2;
+  background: #f2f2f2;
   padding: 10px;
   border-top-right-radius: 10px;
   border-top-left-radius: 10px;

@@ -2,59 +2,18 @@ import { useState, useEffect } from "react";
 import ScrollContainer from "react-indiana-drag-scroll";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import styles from "./styles.module.css";
-
-interface ICabeceras {
-  anio: number;
-  mes: number;
-  dia: number;
-  semana: number;
-  label: string;
-  fecha: Date;
-}
-
-interface INote {
-  startDate: Date;
-  endDate: Date;
-  title: string | JSX.Element[];
-}
-
-export interface ITasks {
-  startDate: Date;
-  endDate: Date;
-  id: string;
-  title: string | JSX.Element[];
-  notes?: INote[];
-  idTask?: string;
-  isTaskMain?: boolean;
-  columns?: { [key: string]: string };
-}
-
-export interface IColums {
-  key: string;
-  name: string | JSX.Element[];
-  type?: "money"; // Por defecto sera siempre Text o JSX Element
-}
+import { ICabeceras, IColums, ITasks } from "./interfaces";
+import { formatMoney, getSemana, obtenerColorAleatorio } from "./Utils";
 
 interface IProps {
   tasks: ITasks[];
   columns?: IColums[];
-  typeShow?: "mes" | "anio" | "semana";
 }
 
 const Cronograma = ({ tasks, columns }: IProps) => {
   const [hideIdTasks, setHideIdTasks] = useState<string[]>([]);
   const [fechas, setFechas] = useState<ICabeceras[]>([]);
-
-  const getSemana = (fecha: Date) => {
-    const d = new Date(fecha);
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-    const yearStart = new Date(d.getFullYear(), 0, 1);
-    const weekNumber = Math.ceil(
-      ((d.valueOf() - yearStart.valueOf()) / 86400000 + 1) / 7
-    );
-    return weekNumber;
-  };
+  const [tempCol, setTempCol] = useState("");
 
   useEffect(() => {
     let newFechas = [];
@@ -73,19 +32,34 @@ const Cronograma = ({ tasks, columns }: IProps) => {
       return accumulator;
     }, endDate);
 
-    for (let i = startDate; i <= endDate; i.setDate(i.getDate() + 1)) {
+    for (
+      let i = new Date(JSON.parse(JSON.stringify(startDate)));
+      i <= endDate;
+      i.setDate(i.getDate() + 1)
+    ) {
       const semana = getSemana(i);
       newFechas.push({
         anio: i.getFullYear(),
         mes: i.getMonth() + 1,
         dia: i.getDate(),
         semana: semana,
-        fecha: new Date(JSON.parse(JSON.stringify(i.getTime()))),
-        label: "Semana " + semana,
+        fecha: new Date(i.getTime()),
+        label: new Date(i.getTime()).toLocaleDateString(),
       });
     }
-    console.log(tasks);
     setFechas(newFechas);
+
+    if (columns) {
+      let coltemp = "";
+      columns.forEach(() => {
+        coltemp = coltemp + "1fr ";
+      });
+      setTempCol(coltemp);
+    }
+
+    tasks.forEach((item) => {
+      item.bgColor = item.bgColor ? item.bgColor : obtenerColorAleatorio();
+    });
   }, []);
 
   const handleChangeVisible = (id: string) => {
@@ -124,7 +98,7 @@ const Cronograma = ({ tasks, columns }: IProps) => {
 
         {columns && (
           <div className={styles.panelColumnas}>
-            <header>
+            <header style={{ gridTemplateColumns: tempCol }}>
               {columns.map((col, key) => (
                 <div key={key}>{col.name}</div>
               ))}
@@ -133,12 +107,14 @@ const Cronograma = ({ tasks, columns }: IProps) => {
               {tasks.map(
                 (task, ke1) =>
                   !hideIdTasks.includes(task.idTask || "") && (
-                    <section key={ke1}>
+                    <section key={ke1} style={{ gridTemplateColumns: tempCol }}>
                       {columns.map((col, ke2) => (
                         <div key={ke2}>
                           {task.columns
                             ? col.type === "money"
-                              ? task.columns[col.key]
+                              ? formatMoney.format(
+                                  Number(task.columns[col.key])
+                                )
                               : task.columns[col.key]
                             : ""}
                         </div>
@@ -169,7 +145,11 @@ const Cronograma = ({ tasks, columns }: IProps) => {
                           <td key={ke2}>
                             {fecha.fecha >= task.startDate &&
                               fecha.fecha <= task.endDate && (
-                                <span>
+                                <span
+                                  style={{
+                                    background: task.bgColor,
+                                  }}
+                                >
                                   {task.notes?.map(
                                     (n, ke3) =>
                                       fecha.fecha >= n.startDate &&
