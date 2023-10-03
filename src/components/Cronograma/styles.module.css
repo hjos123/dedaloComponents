@@ -1,8 +1,10 @@
+/* Panel principal */
 .panelPrincipal {
   display: flex;
   flex-direction: row;
   border: 2px solid #f2f1f1;
 }
+/* Panel de tareas */
 .panelTareas {
   display: flex;
   flex-direction: column;
@@ -30,6 +32,41 @@
   cursor: pointer;
   user-select: none;
 }
+/* Columnas Extra */
+.panelColumnas {
+  display: flex;
+  flex-direction: column;
+}
+.panelColumnas > header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-size: 13px;
+  color: #7e7e7e;
+  text-align: center;
+  height: 50px;
+  border-bottom: 2px solid #f2f1f1;
+}
+.panelColumnas > div > section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-width: 200px;
+  font-size: 13px;
+  color: #7e7e7e;
+  text-align: center;
+  height: 50px;
+}
+.panelColumnas > header > div,
+.panelColumnas > div > section > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-width: 200px;
+}
+.panelColumnas > div > section:nth-child(even) {
+  background-color: #f2f2f2;
+}
+/* Calendario */
 .panelCalendario {
   display: flex;
   flex-direction: column;

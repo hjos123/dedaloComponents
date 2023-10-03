@@ -18,86 +18,32 @@ interface INote {
   title: string | JSX.Element[];
 }
 
-interface ITasks {
+export interface ITasks {
   startDate: Date;
   endDate: Date;
   id: string;
   title: string | JSX.Element[];
   notes?: INote[];
   idTask?: string;
-  columns?: { [key: string]: string | number };
   isTaskMain?: boolean;
+  columns?: { [key: string]: string };
 }
 
-// interface IColums {
-//   key: string;
-//   name: string;
-// }
+export interface IColums {
+  key: string;
+  name: string | JSX.Element[];
+  type?: "money"; // Por defecto sera siempre Text o JSX Element
+}
 
-// interface IProps {
-//   tasks: ITasks[];
-//   columns?: IColums[];
-//   typeShow?: 'mes' | 'anio' | 'semana'
-// }
+interface IProps {
+  tasks: ITasks[];
+  columns?: IColums[];
+  typeShow?: "mes" | "anio" | "semana";
+}
 
-const Cronograma = () => {
+const Cronograma = ({ tasks, columns }: IProps) => {
   const [hideIdTasks, setHideIdTasks] = useState<string[]>([]);
   const [fechas, setFechas] = useState<ICabeceras[]>([]);
-  const tasks: ITasks[] = [
-    {
-      id: "1",
-      title: "Tarea prueba 1",
-      startDate: new Date("02/01/2023"),
-      endDate: new Date("02/10/2023"),
-      isTaskMain: true,
-      notes: [
-        {
-          startDate: new Date("02/02/2023"),
-          endDate: new Date("02/02/2023"),
-          title: "Fecha para subir factura",
-        },
-        {
-          startDate: new Date("02/08/2023"),
-          endDate: new Date("02/08/2023"),
-          title: "Fecha de entrega",
-        },
-      ],
-    },
-    {
-      id: "2",
-      title: "Tarea prueba 2",
-      startDate: new Date("02/01/2023"),
-      endDate: new Date("02/05/2023"),
-      idTask: "1",
-      notes: [
-        {
-          startDate: new Date("02/03/2023"),
-          endDate: new Date("02/03/2023"),
-          title: "Fecha de pago",
-        },
-      ],
-    },
-    {
-      id: "3",
-      title: "Tarea prueba 3",
-      startDate: new Date("02/05/2023"),
-      endDate: new Date("02/10/2023"),
-      idTask: "1",
-      notes: [
-        {
-          startDate: new Date("02/10/2023"),
-          endDate: new Date("02/10/2023"),
-          title: "Fecha de entrega",
-        },
-      ],
-    },
-    {
-      id: "4",
-      title: "Tarea prueba 4",
-      startDate: new Date("02/10/2023"),
-      endDate: new Date("02/11/2023"),
-    },
-  ];
 
   const getSemana = (fecha: Date) => {
     const d = new Date(fecha);
@@ -118,7 +64,7 @@ const Cronograma = () => {
         accumulator = curValue.endDate;
       }
       return accumulator;
-    }, new Date("01/01/1960"));
+    }, new Date("01/01/1800"));
 
     const startDate = tasks.reduce(function (accumulator: Date, curValue) {
       if (curValue.startDate <= accumulator) {
@@ -128,16 +74,17 @@ const Cronograma = () => {
     }, endDate);
 
     for (let i = startDate; i <= endDate; i.setDate(i.getDate() + 1)) {
-      const semana = getSemana(startDate);
+      const semana = getSemana(i);
       newFechas.push({
-        anio: startDate.getFullYear(),
-        mes: startDate.getMonth() + 1,
-        dia: startDate.getDate(),
+        anio: i.getFullYear(),
+        mes: i.getMonth() + 1,
+        dia: i.getDate(),
         semana: semana,
-        fecha: new Date(JSON.parse(JSON.stringify(startDate.getTime()))),
+        fecha: new Date(JSON.parse(JSON.stringify(i.getTime()))),
         label: "Semana " + semana,
       });
     }
+    console.log(tasks);
     setFechas(newFechas);
   }, []);
 
@@ -174,6 +121,35 @@ const Cronograma = () => {
             )}
           </div>
         </div>
+
+        {columns && (
+          <div className={styles.panelColumnas}>
+            <header>
+              {columns.map((col, key) => (
+                <div key={key}>{col.name}</div>
+              ))}
+            </header>
+            <div>
+              {tasks.map(
+                (task, ke1) =>
+                  !hideIdTasks.includes(task.idTask || "") && (
+                    <section key={ke1}>
+                      {columns.map((col, ke2) => (
+                        <div key={ke2}>
+                          {task.columns
+                            ? col.type === "money"
+                              ? task.columns[col.key]
+                              : task.columns[col.key]
+                            : ""}
+                        </div>
+                      ))}
+                    </section>
+                  )
+              )}
+            </div>
+          </div>
+        )}
+
         <ScrollContainer style={{ width: "100%" }}>
           <div className={styles.panelCalendario}>
             <table>
