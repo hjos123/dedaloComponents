@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ScrollContainer from "react-indiana-drag-scroll";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import styles from "./styles.module.css";
 
@@ -8,6 +9,7 @@ interface ICabeceras {
   dia: number;
   semana: number;
   label: string;
+  fecha: Date;
 }
 
 interface INote {
@@ -41,46 +43,71 @@ interface ITasks {
 const Cronograma = () => {
   const [hideIdTasks, setHideIdTasks] = useState<string[]>([]);
   const [fechas, setFechas] = useState<ICabeceras[]>([]);
-  const typeShow = "mes";
   const tasks: ITasks[] = [
     {
       id: "1",
       title: "Tarea prueba 1",
-      startDate: new Date("01/01/2023"),
-      endDate: new Date("01/10/2023"),
+      startDate: new Date("02/01/2023"),
+      endDate: new Date("02/10/2023"),
       isTaskMain: true,
+      notes: [
+        {
+          startDate: new Date("02/02/2023"),
+          endDate: new Date("02/02/2023"),
+          title: "Fecha para subir factura",
+        },
+        {
+          startDate: new Date("02/08/2023"),
+          endDate: new Date("02/08/2023"),
+          title: "Fecha de entrega",
+        },
+      ],
     },
     {
       id: "2",
       title: "Tarea prueba 2",
-      startDate: new Date("01/01/2023"),
-      endDate: new Date("01/05/2023"),
+      startDate: new Date("02/01/2023"),
+      endDate: new Date("02/05/2023"),
       idTask: "1",
+      notes: [
+        {
+          startDate: new Date("02/03/2023"),
+          endDate: new Date("02/03/2023"),
+          title: "Fecha de pago",
+        },
+      ],
     },
     {
       id: "3",
       title: "Tarea prueba 3",
-      startDate: new Date("01/05/2023"),
-      endDate: new Date("01/10/2023"),
+      startDate: new Date("02/05/2023"),
+      endDate: new Date("02/10/2023"),
       idTask: "1",
+      notes: [
+        {
+          startDate: new Date("02/10/2023"),
+          endDate: new Date("02/10/2023"),
+          title: "Fecha de entrega",
+        },
+      ],
     },
     {
       id: "4",
       title: "Tarea prueba 4",
-      startDate: new Date("01/10/2023"),
-      endDate: new Date("01/11/2023"),
+      startDate: new Date("02/10/2023"),
+      endDate: new Date("02/11/2023"),
     },
   ];
 
   const getSemana = (fecha: Date) => {
-    const date = new Date(fecha);
-    date.setHours(0, 0, 0, 0);
-    //date.setDate(date.getDate() + 4 - (date.getDay() || 7));
-    const firstWeek = new Date(date.getFullYear(), 0, 1);
+    const d = new Date(fecha);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
     const weekNumber = Math.ceil(
-      ((date.valueOf() - firstWeek.valueOf()) / 86400000 + 1) / 7
+      ((d.valueOf() - yearStart.valueOf()) / 86400000 + 1) / 7
     );
-    return weekNumber > 52 ? 52 : weekNumber;
+    return weekNumber;
   };
 
   useEffect(() => {
@@ -100,19 +127,17 @@ const Cronograma = () => {
       return accumulator;
     }, endDate);
 
-    for (const i = startDate; i <= endDate; i.setDate(i.getDate() + 1)) {
-      const semana = getSemana(i);
+    for (let i = startDate; i <= endDate; i.setDate(i.getDate() + 1)) {
+      const semana = getSemana(startDate);
       newFechas.push({
-        anio: i.getFullYear(),
-        mes: i.getMonth() + 1,
-        dia: i.getDate(),
+        anio: startDate.getFullYear(),
+        mes: startDate.getMonth() + 1,
+        dia: startDate.getDate(),
         semana: semana,
-        label: 'Semana ' + semana,
+        fecha: new Date(JSON.parse(JSON.stringify(startDate.getTime()))),
+        label: "Semana " + semana,
       });
     }
-
-    console.log(newFechas);
-    
     setFechas(newFechas);
   }, []);
 
@@ -130,31 +155,63 @@ const Cronograma = () => {
     <div style={{ padding: 10 }}>
       <div className={styles.panelPrincipal}>
         <div className={styles.panelTareas}>
-          <section
-            style={{ borderBottom: "2px solid rgba(0, 0, 0, 0.1)" }}
-          ></section>
-          {tasks.map(
-            (task, k) =>
-              !hideIdTasks.includes(task.idTask || "") && (
-                <section key={k}>
-                  <span>
-                    {task.isTaskMain && (
-                      <ArrowDropDownIcon
-                        onClick={() => handleChangeVisible(task.id)}
-                      />
-                    )}
-                  </span>
-                  {task.title}
-                </section>
-              )
-          )}
+          <header></header>
+          <div className={styles.panelSecciones}>
+            {tasks.map(
+              (task, k) =>
+                !hideIdTasks.includes(task.idTask || "") && (
+                  <section key={k}>
+                    <span>
+                      {task.isTaskMain && (
+                        <ArrowDropDownIcon
+                          onClick={() => handleChangeVisible(task.id)}
+                        />
+                      )}
+                    </span>
+                    {task.title}
+                  </section>
+                )
+            )}
+          </div>
         </div>
-        <div className={styles.panelCalendario}>
-          <table className={styles.panelCalendario}>
-            <thead></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <ScrollContainer style={{ width: "100%" }}>
+          <div className={styles.panelCalendario}>
+            <table>
+              <thead>
+                <tr>
+                  {fechas.map((f, ke1) => (
+                    <th key={ke1}>{f.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {tasks.map(
+                  (task, k) =>
+                    !hideIdTasks.includes(task.idTask || "") && (
+                      <tr key={k}>
+                        {fechas.map((fecha, ke2) => (
+                          <td key={ke2}>
+                            {fecha.fecha >= task.startDate &&
+                              fecha.fecha <= task.endDate && (
+                                <span>
+                                  {task.notes?.map(
+                                    (n, ke3) =>
+                                      fecha.fecha >= n.startDate &&
+                                      fecha.fecha <= n.endDate && (
+                                        <article key={ke3}>{n.title}</article>
+                                      )
+                                  )}
+                                </span>
+                              )}
+                          </td>
+                        ))}
+                      </tr>
+                    )
+                )}
+              </tbody>
+            </table>
+          </div>
+        </ScrollContainer>
       </div>
     </div>
   );
